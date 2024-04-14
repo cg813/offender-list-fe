@@ -1,14 +1,14 @@
 <template>
-  <div class="dashboard mx-auto mt-12">
+  <div class="dashboard mx-auto flex flex-col sm:flex-row gap-x-12 mt-12">
     <div class="sm:hidden">
       <label for="tabs" class="sr-only">Select a tab</label>
       <select id="tabs" name="tabs" class="block w-full rounded-md border-none bg-white bg-opacity-5 py-2 pl-3 pr-10 text-base text-white shadow-sm ring-1 ring-inset ring-white ring-opacity-10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm">
         <option v-for="tab in state.tabs" :key="tab.name" :selected="tab.id === state.currentTab">{{ tab.name }}</option>
       </select>
     </div>
-    <div class="hidden sm:block">
-      <nav class="flex justify-center">
-        <ul role="list" class="flex flex-none gap-x-6 text-sm font-semibold leading-6 text-gray-400">
+    <div class="hidden sm:block w-60">
+      <nav class="flex justify-start">
+        <ul role="list" class="flex flex-col gap-y-2 text-sm font-semibold leading-6 text-gray-400">
           <li
             v-for="tab in state.tabs"
             :key="tab.id"
@@ -23,7 +23,7 @@
       </nav>
     </div>
 
-    <div class="flex justify-center">
+    <div class="w-full">
       <Account v-if="state.currentTab === 'profile'" />
       <ChangePassword v-if="state.currentTab === 'change_password'" />
       <PaymentMethod v-if="state.currentTab === 'payment_method'" />
@@ -50,7 +50,7 @@ const state = reactive({
     { name: 'Profile', id: 'profile', icon: UserIcon },
     { name: 'Change Password', id: 'change_password', icon: KeyIcon },
     { name: 'Payment Method', id: 'payment_method', icon: CreditCardIcon },
-    { name: 'Billing History', id: 'billing', icon: CurrencyDollarIcon },
+    { name: 'Transaction History', id: 'billing', icon: CurrencyDollarIcon },
     { name: 'Support', id: 'support', icon: ChatAltIcon }
   ],
   currentTab: (route.query.tab as string) || 'profile'

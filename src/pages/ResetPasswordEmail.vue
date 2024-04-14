@@ -7,7 +7,7 @@
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
       <form class="space-y-6" @submit.prevent="submit">
         <div>
-          <label for="email" class="block text-sm font-medium leading-6 text-white">User Name or Email</label>
+          <label for="email" class="block text-sm font-medium leading-6 text-white">Email</label>
           <div class="mt-2">
             <input
               id="userName"

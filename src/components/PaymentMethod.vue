@@ -1,19 +1,33 @@
 <template>
-  <div class="py-20 mx-auto w-full max-w-lg">
+  <div class="w-full max-w-lg">
     <h2 class="text-2xl font-bold leading-9 tracking-tight text-white">
       Payment methods
     </h2>
 
-    <div class="space-y-4 mt-10">
+    <div v-if="!isLoading" class="space-y-4 mt-10">
       <div
         v-for="paymentMethod of paymentMethods"
         :key="paymentMethod.id"
-        class="flex items-center space-x-8 text-white border-b border-gray-600"
+        class="flex items-center justify-between space-x-8 text-white border-b border-gray-600"
       >
-        <span class="w-40">{{ paymentMethod.card.brand }}</span>
-        <span class="w-40">**** **** **** {{ paymentMethod.card.last4 }}</span>
+        <span class="w-32">{{ paymentMethod.card.brand }}</span>
+        <span class="flex-1">**** **** **** {{ paymentMethod.card.last4 }}</span>
+        <CheckIcon
+          v-if="paymentMethod.id === subscriptionCard"
+          class="text-green-500 w-6"
+        />
+        <button
+          v-else
+          class="text-purple-600"
+          @click="setAsSubscriptionCard(paymentMethod.id)"
+        >
+          Enable
+        </button>
       </div>
     </div>
+    <div
+      v-else
+      class="w-5 h-5 mt-8 border-4 border-purple-500 rounded-full animate-spin"></div>
 
     <!-- stripe -->
     <div 
@@ -44,6 +58,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useToast } from 'vue-toastification'
+import { CheckIcon } from '@heroicons/vue/solid'
 import { useUserStore } from '../stores/user'
 import { useBillingStore } from '../stores/billing'
 import { STRIPE_PUBLISHABLE_KEY } from '../constants'
@@ -73,6 +88,7 @@ const style = {
 const el = elements.create('card', { style: style })
 
 const paymentMethods = ref([] as any[])
+const subscriptionCard = ref('')
 const disabled = ref(false)
 const card = ref(null)
 const isLoading = ref(false)
@@ -90,7 +106,11 @@ onMounted(() => {
 const getPaymentMethods = async (): Promise<void> => {
   if (userStore.user?.customerId) {
     isLoading.value = true
-    paymentMethods.value = await billingStore.getPaymentMethods(userStore.user?.customerId)
+    const paymentMethodRes = await billingStore.getPaymentMethods(userStore.user?.customerId)
+    if (paymentMethodRes) {
+      paymentMethods.value = paymentMethodRes.cards
+      subscriptionCard.value = paymentMethodRes.default
+    }
     isLoading.value = false
   }
 }
@@ -120,5 +140,20 @@ const submit = async () => {
     getPaymentMethods();
   }
   disabled.value = false
+}
+
+const setAsSubscriptionCard = async (id: string): Promise<void> => {
+  if (!userStore.user?.customerId) {
+    return
+  }
+  isLoading.value = true
+  const res = await billingStore.setSubscriptionCard(userStore.user.customerId, id)
+  if (res && res.success) {
+    await getPaymentMethods()
+    toast.success(res.message)
+  } else {
+    toast.error('Something went wrong')
+  }
+  isLoading.value = false
 }
 </script>

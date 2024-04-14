@@ -1,5 +1,5 @@
 <template>
-  <div class="py-20 mx-auto w-full max-w-lg">
+  <div class="w-full max-w-lg">
     <h2 class="text-2xl font-bold leading-9 tracking-tight text-white">
       User details
     </h2>

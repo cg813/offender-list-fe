@@ -1,6 +1,12 @@
 <template>
-  <div class="w-full bg-gray-900 py-20">
-    <div class="-my-2 overflow-x-auto">
+  <div class="w-full bg-gray-900">
+    <div class="">
+      <h2 class="text-2xl font-bold leading-9 tracking-tight text-white">
+        Transactions
+      </h2>
+    </div>
+
+    <div class="mt-6 -mb-2 overflow-x-auto">
       <div class="inline-block min-w-full py-2 align-middle">
         <table class="min-w-full divide-y divide-gray-700">
           <thead>

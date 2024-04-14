@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full max-w-lg py-20">
+  <div class="w-full max-w-lg">
     <div class="">
       <h2 class="text-2xl font-bold leading-9 tracking-tight text-white">Send Email to Admin</h2>
     </div>

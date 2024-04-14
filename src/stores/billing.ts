@@ -40,14 +40,33 @@ export const useBillingStore = defineStore({
 
     async getPaymentMethods(
       customerId: string,
-    ): Promise<any[]> {
+    ): Promise<any> {
       try {
-        const response = await $http.get<any[]>(`/stripe/paymentMethods/${customerId}`)
+        const response = await $http.get<{
+          cards: any[],
+          default: string,
+        }>(`/stripe/paymentMethods/${customerId}`)
         return response.data
       } catch (error) {
         console.log(error)
-        return []
+        return null
       }
     },
+
+    async setSubscriptionCard(
+      customerId: string,
+      paymentMethodId: string,
+    ): Promise<any> {
+      try {
+        const response = await $http.post<string>('/stripe/setSubscriptionCard', {
+          customerId,
+          paymentMethodId
+        })
+        return response.data
+      } catch (error) {
+        console.log(error)
+        return null
+      }
+    }
   }
 })
