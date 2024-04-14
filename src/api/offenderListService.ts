@@ -1,0 +1,49 @@
+import axios, { AxiosError } from "axios";
+
+/* Define Axios instance */
+const $offenderListHttp = axios.create({
+  baseURL: process.env.VUE_APP_OFFENDER_LIST_URL,
+});
+
+/* Handle loading property - Application Loading Indicator */
+let requestsCounter = 0;
+const requestLoadingHandler = ({ url }: any, type: string) => {
+  if (type === "start") {
+    requestsCounter++;
+    if (requestsCounter === 1) {}
+  } else if (type === "end") {
+    requestsCounter--;
+    if (requestsCounter <= 0) {}
+  }
+};
+
+$offenderListHttp.interceptors.request.use(
+  (config) => {
+    requestLoadingHandler(config, "start");
+
+    /* Set authorization token to request header */
+    const token = process.env.VUE_APP_OFFENDER_LIST_TOKEN
+    if (token) config.headers.Authorization = `Basic ${token}`
+
+    return config;
+  },
+  (error: AxiosError) => {
+    const { config } = error;
+    requestLoadingHandler(config, "end");
+    return Promise.reject(error);
+  }
+);
+
+$offenderListHttp.interceptors.response.use(
+  (response) => {
+    requestLoadingHandler(response.config, "end");
+    return response;
+  },
+  (error: AxiosError) => {
+    const { config } = error;
+    requestLoadingHandler(config, "end");
+    return Promise.reject(error);
+  }
+);
+
+export default $offenderListHttp;
