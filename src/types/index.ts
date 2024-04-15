@@ -1,5 +1,3 @@
-import type Stripe from 'stripe';
-
 export enum EUserRole {
   ADMIN = 'admin',
   USER = 'user'
@@ -132,4 +130,10 @@ export interface ISubscriptionResponse {
     subscriptionId: string;
     clientSecret?: string;
   }
+}
+
+export interface ISignupResponse {
+  success: boolean,
+  data?: IUser,
+  message?: string,
 }

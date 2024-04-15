@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import $http from '@/api/service'
-import { IEmailData, ILoginResponse, IUser, IUserCreateDao } from '@/types'
+import { IEmailData, ILoginResponse, IUser, IUserCreateDao, ISignupResponse } from '@/types'
 
 const getDefaultState = () => {
   const authorized = !!localStorage.getItem('token')
@@ -142,13 +142,19 @@ export const useUserStore = defineStore({
       }
     },
 
-    async register(payload: IUserCreateDao): Promise<IUser | null> {
+    async register(payload: IUserCreateDao): Promise<ISignupResponse> {
       try {
         const response = await $http.post('/users', payload)
-        return response.data
-      } catch (error) {
+        return {
+          success: true,
+          data: response.data
+        }
+      } catch (error: any) {
         console.log(error)
-        return null
+        return {
+          success: false,
+          message: error.response.data.message
+        }
       }
     },
 

@@ -43,5 +43,21 @@ export const usePlanStore = defineStore({
         return null
       }
     },
+
+    async createCheckoutSession(
+      customerId: string,
+      lineItems: any[],
+    ): Promise<string | null> {
+      try {
+        const response = await $http.post<string>('/stripe/createCheckoutSession', {
+          customerId,
+          lineItems,
+        })
+        return response.data
+      } catch (error) {
+        console.log(error)
+        return null
+      }
+    }
   }
 })

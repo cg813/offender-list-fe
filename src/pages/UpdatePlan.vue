@@ -26,7 +26,7 @@
             class="w-full disabled:bg-gray-700"
             :class="[true ? 'bg-indigo-500 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline-indigo-500' : 'bg-white/10 text-white hover:bg-white/20 focus-visible:outline-white', 'mt-6 block rounded-md py-2 px-3 text-center text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2']"
             :disabled="plan.name === user.plan"
-            @click="subscribe(plan.id, plan.name)"
+            @click="subscribe(plan.id)"
           >
             Buy plan
           </button>
@@ -45,10 +45,10 @@
 <script setup lang="ts">
 import { computed, ref, onMounted } from 'vue'
 import { CheckIcon } from '@heroicons/vue/solid'
+import { useToast } from 'vue-toastification'
 import { useUserStore } from '@/stores/user'
 import { usePlanStore } from '@/stores/plan'
 import { router } from '@/router';
-import { useToast } from 'vue-toastification'
 
 const userStore = useUserStore()
 const planStore = usePlanStore()
@@ -72,20 +72,41 @@ const fetchPlans = async () => {
   isLoading.value = false
 }
 
-const subscribe = async (priceId: string, subscriptionType: string) => {
+const subscribe = async (
+  priceId: string,
+  // subscriptionType: string
+) => {
   if (!userStore.user?.customerId) {
     return
   }
-  const subscriptionRes = await planStore.createSubscription({
-    customerId: userStore.user.customerId,
-    subscriptionType,
-    priceId,
-  })
-  if (subscriptionRes && subscriptionRes.success) {
-    router.push(`/checkout?subscription=${subscriptionRes.data.subscriptionId}&secret=${subscriptionRes.data.clientSecret}`)
-  } else {
-    toast.error(subscriptionRes?.message || 'Something went wrong!')
+
+  const lineItems = [{
+    price: priceId,
+    quantity: 1,
+  }]
+
+  const sessionId = await planStore.createCheckoutSession(
+    userStore.user?.customerId,
+    lineItems
+  )
+
+  if (!sessionId) {
+    toast.error('Something went wrong!')
+    return
   }
+  
+  // const subscriptionRes = await planStore.createSubscription({
+  //   customerId: userStore.user.customerId,
+  //   subscriptionType,
+  //   priceId,
+  // })
+  // if (subscriptionRes && subscriptionRes.success) {
+  //   router.push(`/checkout?subscription=${subscriptionRes.data.subscriptionId}&secret=${subscriptionRes.data.clientSecret}`)
+  // } else {
+  //   toast.error(subscriptionRes?.message || 'Something went wrong!')
+  // }
+
+  router.push(`/checkout?sessionId=${sessionId}`)
 }
 </script>
 

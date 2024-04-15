@@ -131,8 +131,8 @@ const submit = async () => {
     company: state.company,
     role: EUserRole.USER,
   }
-  const user = await userStore.register(payload)
-  if (user) {
+  const userRes = await userStore.register(payload)
+  if (userRes.success) {
     toast.success('Please verify your email.')
     state.firstName = ''
     state.lastName = ''
@@ -140,7 +140,7 @@ const submit = async () => {
     state.email = ''
     state.company = ''
   } else {
-    toast.error('Something went wrong!')
+    toast.error(userRes.message || 'Something went wrong!')
   }
 }
 </script>
