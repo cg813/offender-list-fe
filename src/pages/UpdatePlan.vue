@@ -74,7 +74,6 @@ const fetchPlans = async () => {
 
 const subscribe = async (
   priceId: string,
-  // subscriptionType: string
 ) => {
   if (!userStore.user?.customerId) {
     return

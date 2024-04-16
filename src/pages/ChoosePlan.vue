@@ -22,7 +22,7 @@
           </p>
           <button
             class="w-full bg-indigo-500 text-white shadow-sm hover:bg-indigo-400 focus-visible:outline-indigo-500 mt-6 block rounded-md py-2 px-3 text-center text-sm font-semibold leading-6 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2"
-            @click="subscribe(plan.id, plan.name)"
+            @click="subscribe(plan.id)"
           >
             Buy plan
           </button>
@@ -68,29 +68,42 @@ const fetchPlans = async () => {
   isLoading.value = false
 }
 
-const subscribe = async (priceId: string, subscriptionType: string) => {
+const subscribe = async (priceId: string) => {
   const customerId = user.value?.customerId || localStorage.getItem('customerId')
   if (!customerId) {
     toast.error('No customer')
     return
   }
 
-  if (isLoading.value) {
+  const lineItems = [{
+    price: priceId,
+    quantity: 1,
+  }]
+
+  const sessionId = await planStore.createCheckoutSession(
+    customerId,
+    lineItems
+  )
+
+  if (!sessionId) {
+    toast.error('Something went wrong!')
     return
   }
 
-  isLoading.value = true
-  const subscriptionRes = await planStore.createSubscription({
-    customerId,
-    subscriptionType,
-    priceId,
-  })
-  isLoading.value = false
-  if (subscriptionRes && subscriptionRes.success) {
-    router.push(`/checkout?subscription=${subscriptionRes.data.subscriptionId}&secret=${subscriptionRes.data.clientSecret}`)
-  } else {
-    toast.error(subscriptionRes?.message || 'Something went wrong!')
-  }
+  router.push(`/checkout?sessionId=${sessionId}`)
+
+  // isLoading.value = true
+  // const subscriptionRes = await planStore.createSubscription({
+  //   customerId,
+  //   subscriptionType,
+  //   priceId,
+  // })
+  // isLoading.value = false
+  // if (subscriptionRes && subscriptionRes.success) {
+  //   router.push(`/checkout?subscription=${subscriptionRes.data.subscriptionId}&secret=${subscriptionRes.data.clientSecret}`)
+  // } else {
+  //   toast.error(subscriptionRes?.message || 'Something went wrong!')
+  // }
 }
 </script>
 
