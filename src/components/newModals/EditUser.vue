@@ -47,6 +47,23 @@
         </div>
 
         <div>
+          <label for="role" class="block text-sm font-medium leading-6 text-white">Role</label>
+          <select
+            id="role"
+            name="role"
+            v-model="state.role"
+            class="mt-2 capitalize block w-full rounded-md border-0 bg-white bg-opacity-5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
+          >
+            <option :value="EUserRole.USER" class="capitalize text-black">
+              {{ EUserRole.USER }}
+            </option>
+            <option :value="EUserRole.ADMIN" class="capitalize text-black">
+              {{ EUserRole.ADMIN }}
+            </option>
+          </select>
+        </div>
+
+        <div>
           <label for="requests" class="block text-sm font-medium leading-6 text-white">Rows</label>
           <div class="">
             <input
@@ -79,7 +96,7 @@ import { computed, reactive, PropType, ref, watch } from 'vue'
 import { useUserStore } from '@/stores/user'
 import { useToast } from 'vue-toastification'
 import AppModal from './AppModal.vue';
-import { IUser } from '@/types'
+import { EUserRole, IUser } from '@/types'
 
 const props = defineProps({
   modelValue: {
@@ -104,6 +121,7 @@ const state = reactive({
   firstName: '',
   lastName: '',
   company: '',
+  role: EUserRole.USER,
   requests: 0,
 })
 
@@ -111,6 +129,14 @@ watch(
   () => props.modelValue,
   () => {
     show.value = props.modelValue
+
+    if (props.user) {
+      state.firstName = props.user.firstName
+      state.lastName = props.user.lastName
+      state.company = props.user.company
+      state.role = props.user.role
+      state.requests = props.user.availableRequests
+    }
   }
 )
 
@@ -121,20 +147,8 @@ watch(
   }
 )
 
-watch(
-  () => props.user,
-  () => {
-    if (props.user) {
-      state.firstName = props.user.firstName
-      state.lastName = props.user.lastName
-      state.company = props.user.company
-      state.requests = props.user.availableRequests
-    }
-  }
-)
-
 const goNext = computed(() => {
-  return !!(!isLoading.value && state.firstName && state.lastName && state.company)
+  return !!(!isLoading.value && state.firstName && state.lastName && state.role)
 })
 
 const close = (): void => {
@@ -148,7 +162,8 @@ const submit = async () => {
   const payload = {
     firstName: state.firstName,
     lastName: state.lastName,
-    company: state.company,
+    company: state.company || '',
+    role: state.role,
     availableRequests: state.requests,
   }
   isLoading.value = true

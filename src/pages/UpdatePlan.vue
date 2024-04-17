@@ -28,7 +28,7 @@
             :disabled="plan.name === user.plan"
             @click="subscribe(plan.id)"
           >
-            Buy plan
+            Upgrade
           </button>
           <ul role="list" class="mt-8 space-y-3 text-sm leading-6 text-gray-300 xl:mt-10">
             <li class="flex gap-x-3">
