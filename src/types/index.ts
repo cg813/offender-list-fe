@@ -8,12 +8,20 @@ export enum EFrequencyForPlan {
   YEAR = 'year'
 }
 
+export interface IPrice {
+  id: string;
+  unit_amount: number;
+  product: string;
+  recurring: Record<string, any>;
+}
+
 export interface IPlan {
   id: string;
   name: string;
   price: number;
   requests: number;
   frequency: EFrequencyForPlan;
+  prices: IPrice[]
 }
 
 export interface IPlanCreateDto {
@@ -47,7 +55,7 @@ export interface IUserCreateDao {
   lastName: string;
   email: string;
   password: string;
-  company: string;
+  company?: string;
   role: EUserRole;
 }
 

@@ -19,16 +19,16 @@
                   <thead>
                     <tr>
                       <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-0">Name</th>
-                      <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-0">Rows</th>
                       <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-0">Price</th>
+                      <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-0">Rows</th>
                       <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-0">Frequency</th>
                     </tr>
                   </thead>
                   <tbody v-if="!isLoading" class="divide-y divide-gray-800">
                     <tr v-for="plan in plans" :key="plan.id">
                       <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-0">{{ plan.name }}</td>
-                      <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-0">{{ plan.requests }}</td>
                       <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-0">$ {{ plan.price }}</th>
+                      <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-0">{{ plan.requests }}</td>
                       <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300 capitalize">{{ plan.frequency }}</td>
                     </tr>
                   </tbody>

@@ -51,7 +51,7 @@
           </button>
         </div>
         <div
-          class="text-xs text-white"
+          class="text-xs text-white text-center"
           @click="router.push('/signup')"
         >
           Don't you have account ? &nbsp; <span class="text-indigo-400 hover:text-indigo-300 cursor-pointer">Create account</span>

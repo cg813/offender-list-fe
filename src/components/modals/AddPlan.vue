@@ -27,6 +27,21 @@
         </div>
       </div>
       <div>
+        <label for="price" class="block text-sm font-medium leading-6 text-white">Price (monthly)</label>
+        <div class="mt-2 relative">
+          <input
+            id="price"
+            name="price"
+            v-model="price"
+            type="number"
+            min="0"
+            :required="true"
+            class="block w-full rounded-md border-0 bg-white bg-opacity-5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
+          />
+          <span class="absolute top-2 right-3">$</span>
+        </div>
+      </div>
+      <div>
         <label for="requests" class="block text-sm font-medium leading-6 text-white">Number of Requests</label>
         <div class="mt-2">
           <input
@@ -34,21 +49,9 @@
             name="requests"
             v-model="requests"
             type="number"
+            min="0"
             :required="true"
-            class="block w-full rounded-md border-0 bg-white bg-opacity-5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
-          />
-        </div>
-      </div>
-      <div>
-        <label for="price" class="block text-sm font-medium leading-6 text-white">Price ($)</label>
-        <div class="mt-2">
-          <input
-            id="price"
-            name="price"
-            v-model="price"
-            type="number"
-            :required="true"
-            class="block w-full rounded-md border-0 bg-white bg-opacity-5 py-1.5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
+            class="block w-full rounded-md border-0 bg-white bg-opacity-5 text-white shadow-sm ring-1 ring-inset ring-white/10 focus:ring-2 focus:ring-inset focus:ring-indigo-500 sm:text-sm sm:leading-6"
           />
         </div>
       </div>

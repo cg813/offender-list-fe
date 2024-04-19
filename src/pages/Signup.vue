@@ -127,7 +127,7 @@ const submit = async () => {
     lastName: state.lastName,
     email: state.email,
     password: state.password,
-    company: state.company || '',
+    company: state.company || undefined,
     role: EUserRole.USER,
   }
   const userRes = await userStore.register(payload)
