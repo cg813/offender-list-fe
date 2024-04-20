@@ -17,26 +17,33 @@
                     <tr>
                       <th scope="col" class="py-3.5 pr-3 text-left text-sm font-semibold text-white sm:pl-0">Name</th>
                       <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Email</th>
+                      <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Status</th>
                       <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Company</th>
                       <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Plan</th>
                       <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Rows Remaining</th>
                       <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Reset Password</th>
                       <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Edit</th>
-                      <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Remove</th>
+                      <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Action</th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-gray-800">
                     <tr v-for="user in users" :key="user.email">
-                      <td class="py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-0">
+                      <td class="py-4 pl-4 pr-3 text-sm font-medium text-gray-300 sm:pl-0">
                         <div class="w-24 truncate">
                           {{ user.firstName }} {{ user.lastName }}
                         </div>
                       </td>
-                      <td class="whitespace-nowrap py-4 px-3 text-sm font-medium text-white">
+                      <td class="whitespace-nowrap py-4 px-3 text-sm font-medium text-gray-300">
                         {{ user.email }}
                       </td>
-                      <td class="whitespace-nowrap py-4 px-3 text-sm font-medium text-white">
-                        {{ user.company }}
+                      <td class="whitespace-nowrap py-4 px-3 text-sm font-medium text-gray-300">
+                        <span v-if="!user.blocked" class="text-green-400">Active</span>
+                        <span v-if="user.blocked" class="text-red-600">Blocked</span>
+                      </td>
+                      <td class="whitespace-nowrap py-4 px-3 text-sm font-medium text-gray-300">
+                        <div class="w-16 truncate">
+                          {{ user.company || 'N/A' }}
+                        </div>
                       </td>
                       <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300">
                         {{ `${userPlan(user.plan)?.name}: ${userPlan(user.plan)?.requests} rows / ${userPlan(user.plan)?.frequency} ` }}
@@ -59,9 +66,16 @@
                       </td>
                       <td class="whitespace-nowrap px-3 py-4 text-sm">
                         <UserRemoveIcon
-                          class="text-red-600 w-5 ml-4 cursor-pointer"
+                          v-if="!user.blocked"
+                          class="text-red-600 w-5 ml-2 cursor-pointer"
                           aria-hidden="true"
-                          @click="remove(user)"
+                          @click="block(user)"
+                        />
+                        <UserAddIcon
+                          v-if="user.blocked"
+                          class="text-green-400 w-5 ml-2 cursor-pointer"
+                          aria-hidden="true"
+                          @click="block(user)"
                         />
                       </td>
                     </tr>
@@ -89,7 +103,7 @@ import { usePlanStore } from '@/stores/plan'
 import { EUserRole, IUser, IPlan } from '@/types'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
-import { PencilIcon, UserRemoveIcon } from '@heroicons/vue/solid'
+import { PencilIcon, UserAddIcon, UserRemoveIcon } from '@heroicons/vue/solid'
 import { useModal } from '@/components/modals/useModal'
 import EditUser from '@/components/newModals/EditUser.vue'
 
@@ -141,7 +155,7 @@ const sendEmail = async (email: string) => {
   }
 }
 
-const removeUser = async () => {
+const blockUser = async () => {
   if (!selectedUser.value) {
     return
   }
@@ -155,12 +169,12 @@ const removeUser = async () => {
   }
 }
 
-const remove = async (user: IUser) => {
+const block = async (user: IUser) => {
   selectedUser.value = user
   confirmModal.show({
-    title: 'Delete User',
-    message: 'Are you sure you want to delete user?',
-    confirm: removeUser
+    title: user.blocked ? 'Active User' : 'Block User',
+    message: `Are you sure you want to ${user.blocked ? 'unblock' : 'block'} ${user.firstName} ${user.lastName}?`,
+    confirm: blockUser
   })
 }
 

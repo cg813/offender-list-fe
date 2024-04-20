@@ -46,6 +46,7 @@ export interface IUser {
   emailVerification: boolean;
   paymentStatus: boolean;
   customerId: string | null;
+  blocked: boolean;
   createdAt: string;
   updatedAt: string;
 }

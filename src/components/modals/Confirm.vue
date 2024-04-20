@@ -12,7 +12,7 @@
            @click="hide" />
     </div>
 
-    <div class="p-6 text-center overflow-y-auto scrollbar-hide space-y-4">
+    <div class="px-6 py-4 text-center overflow-y-auto scrollbar-hide space-y-4">
       {{ params.message }}
     </div>
 
