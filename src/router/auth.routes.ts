@@ -2,7 +2,8 @@ import { RouteRecordRaw } from 'vue-router'
 
 import Login from '@/pages/Login.vue'
 import Signup from '@/pages/Signup.vue'
-import emailVerification from '@/pages/EmailVerification.vue'
+import EmailVerification from '@/pages/EmailVerification.vue'
+import SendVerificationEmail from '@/pages/SendVerificationEmail.vue'
 import PasswordReset from '@/pages/ResetPassword.vue'
 import PasswordResetEmail from '@/pages/ResetPasswordEmail.vue'
 import ChoosePlan from '@/pages/ChoosePlan.vue'
@@ -13,6 +14,7 @@ export const authRouteNames = {
   login: 'login',
   signup: 'signup',
   emailVerification: 'email-verification',
+  sendVerificationEmail: 'send-verification-email',
   resetPasswordEmail: 'reset-password-email',
   resetPassword: 'reset-password',
   choosePlan: 'choose-plan',
@@ -44,7 +46,15 @@ export const authRoutes: RouteRecordRaw[] = [
     meta: {
       title: 'Email verification',
     },
-    component: emailVerification
+    component: EmailVerification
+  },
+  {
+    path: 'send-verification-email',
+    name: authRouteNames.sendVerificationEmail,
+    meta: {
+      title: 'Send verification email',
+    },
+    component: SendVerificationEmail
   },
   {
     path: 'reset-password/:token',

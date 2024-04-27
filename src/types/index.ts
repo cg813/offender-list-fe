@@ -117,32 +117,31 @@ export interface PaginationData {
   total: number;
 }
 
-export interface ILoginResponse {
-  success: boolean,
-  data?: {
-    token: string;
-    user: IUser;
-  },
-  message?: string,
-}
-
 export interface ICreateSubscription {
   customerId: string;
   subscriptionType: string;
   priceId: string;
 }
 
-export interface ISubscriptionResponse {
+export interface IResponse {
   success: boolean;
   message?: string;
+}
+
+export interface ILoginResponse extends IResponse {
+  data?: {
+    token: string;
+    user: IUser;
+  },
+}
+
+export interface ISubscriptionResponse extends IResponse {
   data: {
     subscriptionId: string;
     clientSecret?: string;
   }
 }
 
-export interface ISignupResponse {
-  success: boolean,
+export interface ISignupResponse extends IResponse {
   data?: IUser,
-  message?: string,
 }

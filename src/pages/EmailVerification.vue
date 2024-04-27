@@ -34,9 +34,13 @@ onMounted(async () => {
   isLoading.value = true
   const user = await userStore.verifyEmail(email, token)
   if (user) {
-    localStorage.setItem('customerId', user.customerId || '')
     isVerified.value = true
-    router.push('/choose-plan')
+    if (user.plan) {
+      router.push('/login')
+    } else {
+      localStorage.setItem('customerId', user.customerId || '')
+      router.push('/choose-plan')
+    }
   }
   isLoading.value = false
 })

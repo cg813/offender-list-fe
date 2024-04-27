@@ -98,6 +98,7 @@ import { useUserStore } from '@/stores/user'
 import { usePlanStore } from '@/stores/plan'
 import { useToast } from 'vue-toastification'
 import { EUserRole, IUserCreateDao } from '@/types'
+import { router } from '@/router';
 
 const userStore = useUserStore()
 const planStore = usePlanStore()
@@ -133,6 +134,7 @@ const submit = async () => {
   const userRes = await userStore.register(payload)
   if (userRes.success) {
     toast.success('Please verify your email.')
+    router.push(`/send-verification-email?un=${state.email}`)
     state.firstName = ''
     state.lastName = ''
     state.password = ''

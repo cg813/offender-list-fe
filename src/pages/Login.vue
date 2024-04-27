@@ -98,6 +98,9 @@ const submit = async () => {
       router.push('/')
     } else {
       toast.error(loginRes.message || 'Something went wrong!')
+      if (loginRes.message?.includes('Email')) {
+        router.push(`/send-verification-email?un=${state.email}`)
+      }
     }
   } else {
     toast.error('Something went wrong!')

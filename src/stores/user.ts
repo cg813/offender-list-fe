@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import $http from '@/api/service'
-import { IEmailData, ILoginResponse, IUser, IUserCreateDao, ISignupResponse } from '@/types'
+import { IEmailData, ILoginResponse, IResponse, IUser, IUserCreateDao, ISignupResponse } from '@/types'
 
 const getDefaultState = () => {
   const authorized = !!localStorage.getItem('token')
@@ -167,8 +167,23 @@ export const useUserStore = defineStore({
           email,
           token
         }
-        const response = await $http.patch<IUser>(`/users/verifyEmail`, payload)
+        const response = await $http.post<IUser>(`/users/verifyEmail`, payload)
         this.user = response.data
+        return response.data
+      } catch (error) {
+        console.log(error)
+        return null
+      }
+    },
+
+    async sendVerificationEmail(
+      email: string,
+    ): Promise<IResponse | null> {
+      try {
+        const payload = {
+          email,
+        }
+        const response = await $http.post<IResponse>(`/users/sendVerificationEmail`, payload)
         return response.data
       } catch (error) {
         console.log(error)
