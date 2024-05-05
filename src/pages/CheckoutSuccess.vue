@@ -5,7 +5,7 @@
         Congratulations!
       </h2>
       <p class="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-300">
-        Your pricing plan is updated successfully!
+        Your activity has been processed successfully.
       </p>
       <p @click="$router.push('/login')" class="mt-10 text-center text-indigo-400 cursor-pointer">Please log in again</p>
     </div>
