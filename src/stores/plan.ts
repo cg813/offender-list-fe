@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia'
 import $http from '@/api/service'
-import { IPlan, IPlanCreateDto, ICreateSubscription, ISubscriptionResponse } from '@/types'
+import { EStripeCheckoutMode, IPlan, IPlanCreateDto, ICreateSubscription, ISubscriptionResponse } from '@/types'
 
 const getDefaultState = () => {
   return {
@@ -46,11 +46,13 @@ export const usePlanStore = defineStore({
 
     async createCheckoutSession(
       customerId: string,
-      lineItems: any[],
+      mode: EStripeCheckoutMode,
+      lineItems?: any[],
     ): Promise<string | null> {
       try {
         const response = await $http.post<string>('/stripe/createCheckoutSession', {
           customerId,
+          mode,
           lineItems,
         })
         return response.data

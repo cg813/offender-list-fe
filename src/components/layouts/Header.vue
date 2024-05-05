@@ -21,7 +21,7 @@
           :class="{'border-purple-700': $route.path.includes('update-plan')}"
           @click="$router.push('/update-plan')"
         >
-          <span class="text-lg text-indigo-400">Pricing</span>
+          <span class="text-lg text-indigo-400">Membership</span>
         </div>
 
         <div

@@ -15,10 +15,18 @@
         class="flex items-baseline gap-x-1"
       >
         <input
+          v-if="plan.name !== user.plan"
           type="radio"
           :value="price.id"
           v-model="selectedPrice"
           class="mr-4"
+        />
+        <input
+          v-else
+          type="radio"
+          :checked="price.id === userPrice"
+          class="mr-4"
+          :disabled="true"
         />
         <span class="text-2xl font-bold tracking-tight text-white">${{ price.unit_amount }}</span>
         <span class="text-sm font-semibold leading-6 text-white">/{{ price.recurring.interval }}</span>
@@ -42,13 +50,14 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, PropType, ref } from 'vue'
+import { computed, onMounted, PropType, ref } from 'vue'
 import { useToast } from 'vue-toastification'
 import { CheckIcon } from '@heroicons/vue/solid'
 import { useUserStore } from '@/stores/user'
 import { usePlanStore } from '@/stores/plan'
+import { useBillingStore } from '@/stores/billing';
 import { router } from '@/router';
-import { IPlan } from '@/types';
+import { EStripeCheckoutMode, IPlan } from '@/types';
 
 const props = defineProps({
   plan: {
@@ -60,8 +69,20 @@ const props = defineProps({
 const userStore = useUserStore()
 const planStore = usePlanStore()
 const toast = useToast()
+const billingStore = useBillingStore()
 
 const selectedPrice = ref(props.plan.prices[0].id)
+const userPrice = ref('')
+
+onMounted(async () => {
+  if (!userStore.user?.customerId) {
+    return
+  }
+  if (userStore.user!.plan === props.plan.name) {
+    const res = await billingStore.getSubscriptionInfo(userStore.user.customerId)
+    userPrice.value = res.priceId
+  }
+})
 
 const user = computed(() => userStore.user)
 
@@ -76,7 +97,8 @@ const subscribe = async () => {
   }]
 
   const sessionId = await planStore.createCheckoutSession(
-    userStore.user?.customerId,
+    userStore.user.customerId,
+    EStripeCheckoutMode.SUBSCRIPTION,
     lineItems
   )
 

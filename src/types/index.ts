@@ -145,3 +145,9 @@ export interface ISubscriptionResponse extends IResponse {
 export interface ISignupResponse extends IResponse {
   data?: IUser,
 }
+
+export enum EStripeCheckoutMode {
+  PAYMENT = 'payment',
+  SUBSCRIPTION = 'subscription',
+  SETUP = 'setup',
+}

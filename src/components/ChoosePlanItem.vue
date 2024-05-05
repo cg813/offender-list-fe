@@ -42,7 +42,7 @@ import { CheckIcon } from '@heroicons/vue/solid'
 import { useUserStore } from '@/stores/user'
 import { usePlanStore } from '@/stores/plan'
 import { router } from '@/router';
-import { IPlan } from '@/types';
+import { EStripeCheckoutMode, IPlan } from '@/types';
 
 const props = defineProps({
   plan: {
@@ -73,6 +73,7 @@ const subscribe = async () => {
 
   const sessionId = await planStore.createCheckoutSession(
     customerId,
+    EStripeCheckoutMode.SUBSCRIPTION,
     lineItems
   )
 

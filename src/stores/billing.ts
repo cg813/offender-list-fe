@@ -67,6 +67,21 @@ export const useBillingStore = defineStore({
         console.log(error)
         return null
       }
-    }
+    },
+
+    async getSubscriptionInfo(
+      customerId: string,
+    ): Promise<any> {
+      try {
+        const response = await $http.get<{
+          subscriptionId: string,
+          priceId: string,
+        }>(`/stripe/subscriptionPrice/${customerId}`)
+        return response.data
+      } catch (error) {
+        console.log(error)
+        return null
+      }
+    },
   }
 })

@@ -29,21 +29,7 @@
       v-else
       class="w-5 h-5 mt-8 border-4 border-purple-500 rounded-full animate-spin"></div>
 
-    <!-- stripe -->
-    <div 
-      ref="card" 
-      class="mt-20 p-2.5 rounded-md border-2 border-solid text-white">
-      <!-- Elements will create input elements here -->
-    </div>
-
-    <!-- We'll put the error messages in this element -->
-    <div
-      id="card-errors"
-      role="alert"
-      class="text-error-message text-lg font-semibold"
-    ></div>
-
-    <div class="justify-center">
+    <div class="justify-center mt-8">
       <button
         class="w-full h-8 mb-3 text-white shadow-md bg-indigo-500 border mt-5 rounded-md hover:bg-indigo-400"
         :disabled="disabled"
@@ -61,46 +47,22 @@ import { useToast } from 'vue-toastification'
 import { CheckIcon } from '@heroicons/vue/solid'
 import { useUserStore } from '../stores/user'
 import { useBillingStore } from '../stores/billing'
-import { STRIPE_PUBLISHABLE_KEY } from '../constants'
+import { usePlanStore } from '@/stores/plan'
+import { router } from '@/router';
+import { EStripeCheckoutMode } from '@/types';
 
 const userStore = useUserStore()
 const billingStore = useBillingStore()
 const toast = useToast()
-
-const stripe = (window as any).Stripe(STRIPE_PUBLISHABLE_KEY)
-const elements = stripe?.elements()
-
-const style = {
-  base: {
-    color: '#fff',
-    fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
-    fontSmoothing: 'antialiased',
-    fontSize: '16px',
-    '::placeholder': {
-      color: '#aab7c4'
-    }
-  },
-  invalid: {
-    color: '#fa755a',
-    iconColor: '#fa755a'
-  }
-}
-const el = elements.create('card', { style: style })
+const planStore = usePlanStore()
 
 const paymentMethods = ref([] as any[])
 const subscriptionCard = ref('')
 const disabled = ref(false)
-const card = ref(null)
 const isLoading = ref(false)
 
 onMounted(() => {
   getPaymentMethods()
-
-  el.mount(card.value)
-
-  el.on('change', (event: HTMLElement) => {
-    // displayError(event)
-  })
 })
 
 const getPaymentMethods = async (): Promise<void> => {
@@ -120,25 +82,17 @@ const submit = async () => {
     return
   }
   disabled.value = true
-  const clientSecret = await billingStore.createSetupIntent(userStore.user.customerId!)
-  if (!clientSecret) {
-    disabled.value = false
+  const sessionId = await planStore.createCheckoutSession(
+    userStore.user.customerId,
+    EStripeCheckoutMode.SETUP,
+  )
+
+  if (!sessionId) {
+    toast.error('Something went wrong!')
     return
   }
 
-  const result = await stripe.confirmCardSetup(clientSecret, {
-    payment_method: {
-      type: 'card',
-      billing_details: { email: userStore.user?.email },
-      card: el,
-    }
-  })
-  if (result.error) {
-    toast.error(result.error.message)
-  } else {
-    toast.success('Card is linked successfully.')
-    getPaymentMethods();
-  }
+  router.push(`/checkout?sessionId=${sessionId}`)
   disabled.value = false
 }
 

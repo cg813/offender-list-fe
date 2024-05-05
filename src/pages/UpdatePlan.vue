@@ -3,10 +3,10 @@
     <div class="my-20">
       <h2 class="text-center text-4xl font-semibold tracking-tight text-white">Pricing plans</h2>
       <p class="mx-auto mt-6 max-w-2xl text-center text-lg leading-8 text-gray-300">
-        Choose the plan that's best for you.
+        Upgrade your account.
       </p>
 
-      <div class="flex justify-center mt-10 max-w-md gap-8 lg:mx-0 lg:max-w-none">
+      <div v-if="!isLoading" class="flex justify-center mt-10 max-w-md gap-8 lg:mx-0 lg:max-w-none">
         <UpdatePlanItem
           v-for="plan in plans"
           :key="plan.name"
