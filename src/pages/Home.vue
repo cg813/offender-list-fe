@@ -98,9 +98,12 @@
               </div>
             </template>
             <template v-else>
-              <div
+              <!-- <div
                 style="border-top-color:transparent"
-                class="w-5 h-5 mt-3 border-4 mx-auto border-blue-400 border-solid rounded-full animate-spin"></div>
+                class="w-5 h-5 mt-3 border-4 mx-auto border-blue-400 border-solid rounded-full animate-spin"></div> -->
+              <div class="rounded-full bg-gray-600 w-full h-2 mx-auto">
+                <div :style="{width: state.progress}" class="bg-red-500 h-2 rounded-full max-w-xl" />
+              </div>
             </template>
           </div>
         </div>
@@ -139,7 +142,8 @@ const state = reactive({
   header: [] as string[],
   list: [] as any[],
   isLoading: false,
-  downloadFile: 'xlsx' as 'xlsx' | 'csv'
+  downloadFile: 'xlsx' as 'xlsx' | 'csv',
+  progress: '10%'
 })
 
 const description = computed(() => {
@@ -343,9 +347,10 @@ const startProcessing = async () => {
           data[headerLength] = 'No Match'
           data[headerLength+1] = ''
         }
-        await sleep(100)
+        await sleep(50);
       }
       newList.push(data)
+      state.progress = `${Math.round((i + 1) * 100 / availableList.length)}%`;
     }
     state.list = newList
     state.isLoading = false
