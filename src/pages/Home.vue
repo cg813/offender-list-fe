@@ -50,11 +50,11 @@
           </div>
           <div v-if="state.fileName && state.list.length" class="mt-10 flex flex-col items-center">
             <template v-if="!state.isLoading">
-              <p class="text-white text-sm text-center mb-8">
+              <p class="text-white text-sm text-center mb-4">
                 You are about to process {{ state.list.length }} rows.
               </p>
               <p class="mb-4 text-sm text-center text-white">Return result as:</p>
-              <div class="space-y-4 sm:flex sm:items-center sm:space-x-10 sm:space-y-0 mb-8">
+              <div class="space-y-4 sm:flex sm:items-center sm:space-x-10 sm:space-y-0 mb-4">
                 <div class="flex items-center">
                   <input
                     id="xlsx"
@@ -80,6 +80,7 @@
                   <label for="csv" class="ml-3 block text-sm font-medium leading-6 text-white">CSV File</label>
                 </div>
               </div>
+              <p class="mb-8 text-white text-center">It can take several minutes to process. We will email when the file is ready.</p>
               <div class="flex space-x-4">
                 <button
                   type="button"
@@ -98,9 +99,6 @@
               </div>
             </template>
             <template v-else>
-              <!-- <div
-                style="border-top-color:transparent"
-                class="w-5 h-5 mt-3 border-4 mx-auto border-blue-400 border-solid rounded-full animate-spin"></div> -->
               <div class="rounded-full bg-gray-600 w-full h-2 mx-auto">
                 <div :style="{width: state.progress}" class="bg-red-500 h-2 rounded-full max-w-xl" />
               </div>
@@ -362,10 +360,18 @@ const startProcessing = async () => {
     }
     cancel()
 
-    const payload = {
+    const payload1 = {
       processedRows: _availableRequests
     }
-    await userStore.updateUser(userStore.user._id, payload)
+    const payload2: IEmailData = {
+      to: userStore.user.email,
+      subject: 'Offender List detection',
+      text: `Hi,\r\n\n Your file is ready and downlaoded automatically.`
+    }
+    await Promise.all([
+      userStore.updateUser(userStore.user._id, payload1),
+      userStore.sendEmail(payload2)
+    ])
     toast.success('Detection finished successfully!')
   } catch (error) {
     console.log(error)
