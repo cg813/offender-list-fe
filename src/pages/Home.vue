@@ -50,10 +50,9 @@
           </div>
           <div v-if="state.fileName && state.list.length" class="mt-10 flex flex-col items-center">
             <template v-if="!state.isLoading">
-              <p class="text-white text-sm text-center mb-4">
-                You are about to process {{ state.list.length }} rows.
+              <p class="text-white text-sm text-center mb-2">
+                You are about to process {{ state.list.length }} rows. Return result as:
               </p>
-              <p class="mb-4 text-sm text-center text-white">Return result as:</p>
               <div class="space-y-4 sm:flex sm:items-center sm:space-x-10 sm:space-y-0 mb-4">
                 <div class="flex items-center">
                   <input
@@ -80,7 +79,33 @@
                   <label for="csv" class="ml-3 block text-sm font-medium leading-6 text-white">CSV File</label>
                 </div>
               </div>
-              <p class="mb-8 text-white text-center">It can take several minutes to process. We will email when the file is ready.</p>
+              <p class="mb-2 text-white text-center">{{ description2 }}</p>
+              <div class="space-y-4 sm:flex sm:items-center sm:space-x-10 sm:space-y-0 mb-8">
+                <div class="flex items-center">
+                  <input
+                    id="yes"
+                    name="send-email"
+                    :value="true"
+                    type="radio"
+                    v-model="state.sendEmail"
+                    :checked="state.sendEmail === true"
+                    class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                  />
+                  <label for="xlsx" class="ml-3 block text-sm font-medium leading-6 text-white">Yes</label>
+                </div>
+                <div class="flex items-center">
+                  <input
+                    id="no"
+                    name="send-email"
+                    :value="false"
+                    v-model="state.sendEmail"
+                    type="radio"
+                    :checked="state.sendEmail === false"
+                    class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                  />
+                  <label for="csv" class="ml-3 block text-sm font-medium leading-6 text-white">No</label>
+                </div>
+              </div>
               <div class="flex space-x-4">
                 <button
                   type="button"
@@ -130,6 +155,7 @@ import { useOffenderListStore } from '@/stores/offenderList'
 import { useToast } from 'vue-toastification'
 import { DocumentIcon } from '@heroicons/vue/solid'
 import { checkIsAvailableData, jsonToCsv, sleep } from '@/helpers'
+import { IEmailData } from '@/types'
 
 const userStore = useUserStore()
 const offenderListStore = useOffenderListStore()
@@ -141,7 +167,8 @@ const state = reactive({
   list: [] as any[],
   isLoading: false,
   downloadFile: 'xlsx' as 'xlsx' | 'csv',
-  progress: '10%'
+  progress: '0%',
+  sendEmail: false,
 })
 
 const description = computed(() => {
@@ -149,6 +176,22 @@ const description = computed(() => {
     return ''
   }
   return `Your account has ${userStore.user.availableRequests} rows available for processing.`
+})
+
+const description2 = computed(() => {
+  let estimated = 'less than 1'
+  if (state.list.length > 20000) {
+    estimated = 'greater than 30'
+  } else if (state.list.length > 5000) {
+    estimated = '20 - 30'
+  } else if (state.list.length > 2000) {
+    estimated = '10 - 20'
+  } else if (state.list.length > 600) {
+    estimated = '5 - 10'
+  } else if (state.list.length > 300) {
+    estimated = '1 - 2'
+  }
+  return `Your estimated processing time is ${estimated} minutes. Should we send you an email when it's finished?`
 })
 
 const getData = (dataString: string) => {
@@ -363,15 +406,15 @@ const startProcessing = async () => {
     const payload1 = {
       processedRows: _availableRequests
     }
-    const payload2: IEmailData = {
-      to: userStore.user.email,
-      subject: 'Offender List detection',
-      text: `Hi,\r\n\n Your file is ready and downlaoded automatically.`
+    await userStore.updateUser(userStore.user._id, payload1)
+    if (state.sendEmail) {
+      const payload2: IEmailData = {
+        to: userStore.user.email,
+        subject: 'Offender List detection',
+        text: `Hi,\r\n\n Your file is ready and downlaoded automatically.`
+      }
+      await userStore.sendEmail(payload2)
     }
-    await Promise.all([
-      userStore.updateUser(userStore.user._id, payload1),
-      userStore.sendEmail(payload2)
-    ])
     toast.success('Detection finished successfully!')
   } catch (error) {
     console.log(error)
