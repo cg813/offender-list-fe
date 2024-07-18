@@ -17,12 +17,19 @@
                     <tr>
                       <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-0">Date</th>
                       <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Rows processed</th>
+                      <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-white">Download</th>
                     </tr>
                   </thead>
                   <tbody v-if="!isLoading" class="divide-y divide-gray-800">
                     <tr v-for="activity in activities" :key="activity._id">
                       <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-0">{{ moment(activity.createdAt).format('MM/DD/YYYY, hh:mm:ss') }}</td>
                       <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300 capitalize">{{ activity.processed }}</td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300 text-right capitalize">
+                        <a v-if="activity.fileUrl" :href="`${SERVICE_URL}/${activity.fileUrl}`" download>
+                          <DownloadIcon class="w-6 ml-auto cursor-pointer text-purple-700" />
+                        </a>
+                        <DownloadIcon v-else class="w-6 ml-auto" />
+                      </td>
                     </tr>
                   </tbody>
                 </table>
@@ -46,6 +53,8 @@ import Pagination from '@/components/Pagination.vue'
 import { useUserStore } from '@/stores/user'
 import { useActivityStore } from '@/stores/activity'
 import { IActivity } from '@/types'
+import { DownloadIcon } from '@heroicons/vue/solid'
+import { SERVICE_URL } from '@/constants'
 
 const userStore = useUserStore()
 const activityStore = useActivityStore()

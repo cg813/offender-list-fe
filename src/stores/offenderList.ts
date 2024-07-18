@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia'
 import $offenderListHttp from '@/api/offenderListService'
-import { IOffender } from '@/types'
+import { IDetectionRequest, IOffender, IResponse } from '@/types'
+import $http from '@/api/service'
 
 const getDefaultState = () => ({})
 
@@ -23,6 +24,19 @@ export const useOffenderListStore = defineStore({
         console.log(error)
         return []
       }
-    }
+    },
+
+    async detection(payload: IDetectionRequest): Promise<IResponse> {
+      try {
+        const response = await $http.post<IResponse>('/v1/detection', payload)
+        return response.data
+      } catch (error: any) {
+        console.log(error)
+        return {
+          success: false,
+          message: error.response.data.message
+        }
+      }
+    },
   }
 })

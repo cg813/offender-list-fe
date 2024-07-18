@@ -24,7 +24,7 @@ export const useUserStore = defineStore({
       id: string
     ): Promise<IUser | null> {
       try {
-        const response = await $http.get<IUser>(`/users/${id}`)
+        const response = await $http.get<IUser>(`/v1/users/${id}`)
         return response.data
       } catch (error) {
         console.log(error)
@@ -34,7 +34,7 @@ export const useUserStore = defineStore({
 
     async fetchAllUser(): Promise<IUser[]> {
       try {
-        const response = await $http.get<IUser[]>('/users')
+        const response = await $http.get<IUser[]>('/v1/users')
         return response.data
       } catch (error) {
         console.log(error)
@@ -47,7 +47,7 @@ export const useUserStore = defineStore({
       payload: Partial<IUser | {processedRows: number}>
     ): Promise<IUser | null> {
       try {
-        const response = await $http.put<IUser>(`/users/${id}`, payload)
+        const response = await $http.put<IUser>(`/v1/users/${id}`, payload)
         if (response.data && this.user?._id === response.data._id) {
           this.user = response.data
         }
@@ -67,7 +67,7 @@ export const useUserStore = defineStore({
           email,
           password
         }
-        const response = await $http.post<ILoginResponse>(`/users/login`, payload)
+        const response = await $http.post<ILoginResponse>(`/v1/users/login`, payload)
         if (response.data?.success) {
           this.user = response.data.data!.user
           localStorage.setItem('_id', this.user._id)
@@ -98,7 +98,7 @@ export const useUserStore = defineStore({
           password,
           newPassword
         }
-        const response = await $http.patch<IUser>(`/users/changePassword`, payload)
+        const response = await $http.patch<IUser>(`/v1/users/changePassword`, payload)
         return response.data
       } catch (error) {
         console.log(error)
@@ -115,7 +115,7 @@ export const useUserStore = defineStore({
           email,
           isAdmin
         }
-        const response = await $http.patch<IUser>(`/users/resetPasswordEmail`, payload)
+        const response = await $http.patch<IUser>(`/v1/users/resetPasswordEmail`, payload)
         return response.data
       } catch (error) {
         console.log(error)
@@ -134,7 +134,7 @@ export const useUserStore = defineStore({
           password,
           token
         }
-        const response = await $http.patch<IUser>(`/users/resetPassword`, payload)
+        const response = await $http.patch<IUser>(`/v1/users/resetPassword`, payload)
         return response.data
       } catch (error) {
         console.log(error)
@@ -144,7 +144,7 @@ export const useUserStore = defineStore({
 
     async register(payload: IUserCreateDao): Promise<ISignupResponse> {
       try {
-        const response = await $http.post('/users', payload)
+        const response = await $http.post('/v1/users', payload)
         return {
           success: true,
           data: response.data
@@ -167,7 +167,7 @@ export const useUserStore = defineStore({
           email,
           token
         }
-        const response = await $http.post<IUser>(`/users/verifyEmail`, payload)
+        const response = await $http.post<IUser>(`/v1/users/verifyEmail`, payload)
         this.user = response.data
         return response.data
       } catch (error) {
@@ -183,7 +183,7 @@ export const useUserStore = defineStore({
         const payload = {
           email,
         }
-        const response = await $http.post<IResponse>(`/users/sendVerificationEmail`, payload)
+        const response = await $http.post<IResponse>(`/v1/users/sendVerificationEmail`, payload)
         return response.data
       } catch (error) {
         console.log(error)
@@ -195,7 +195,7 @@ export const useUserStore = defineStore({
       payload: IEmailData
     ): Promise<boolean> {
       try {
-        const response = await $http.post(`/emails/send`, payload)
+        const response = await $http.post(`/v1/emails/send`, payload)
         if (response.data) {
           return !!response.data.success
         } else {
@@ -211,7 +211,7 @@ export const useUserStore = defineStore({
       id: string
     ): Promise<boolean> {
       try {
-        const response = await $http.delete<boolean>(`/users/${id}`)
+        const response = await $http.delete<boolean>(`/v1/users/${id}`)
         return response.data
       } catch (error) {
         console.log(error)

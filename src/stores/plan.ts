@@ -15,7 +15,7 @@ export const usePlanStore = defineStore({
   actions: {
     async fetchPlans(): Promise<IPlan[]> {
       try {
-        const response = await $http.get<IPlan[]>('/stripe/pricingModels')
+        const response = await $http.get<IPlan[]>('/v1/stripe/pricingModels')
         this.plans = response.data || [];
         return response.data
       } catch (error) {
@@ -26,7 +26,7 @@ export const usePlanStore = defineStore({
 
     async createPlan(payload: IPlanCreateDto): Promise<IPlan | null> {
       try {
-        const response = await $http.post('/stripe/createPricingModel', payload)
+        const response = await $http.post('/v1/stripe/createPricingModel', payload)
         return response.data
       } catch (error) {
         console.log(error)
@@ -36,7 +36,7 @@ export const usePlanStore = defineStore({
 
     async createSubscription(payload: ICreateSubscription): Promise<ISubscriptionResponse | null> {
       try {
-        const response = await $http.post<ISubscriptionResponse>('/stripe/createSubscription', payload)
+        const response = await $http.post<ISubscriptionResponse>('/v1/stripe/createSubscription', payload)
         return response.data
       } catch (error) {
         console.log(error)
@@ -50,7 +50,7 @@ export const usePlanStore = defineStore({
       lineItems?: any[],
     ): Promise<string | null> {
       try {
-        const response = await $http.post<string>('/stripe/createCheckoutSession', {
+        const response = await $http.post<string>('/v1/stripe/createCheckoutSession', {
           customerId,
           mode,
           lineItems,

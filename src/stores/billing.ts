@@ -18,7 +18,7 @@ export const useBillingStore = defineStore({
       startingAfter: string | null = null
     ): Promise<any> {
       try {
-        const response = await $http.get<any>(`/stripe/billing?customerId=${customerId}&limit=${limit}&startingAfter=${startingAfter}`)
+        const response = await $http.get<any>(`/v1/stripe/billing?customerId=${customerId}&limit=${limit}&startingAfter=${startingAfter}`)
         return response.data
       } catch (error) {
         console.log(error)
@@ -28,7 +28,7 @@ export const useBillingStore = defineStore({
 
     async createSetupIntent(customerId: string): Promise<string | null> {
       try {
-        const response = await $http.post<string>('/stripe/createSetupIntent', {
+        const response = await $http.post<string>('/v1/stripe/createSetupIntent', {
           customerId
         })
         return response.data
@@ -45,7 +45,7 @@ export const useBillingStore = defineStore({
         const response = await $http.get<{
           cards: any[],
           default: string,
-        }>(`/stripe/paymentMethods/${customerId}`)
+        }>(`/v1/stripe/paymentMethods/${customerId}`)
         return response.data
       } catch (error) {
         console.log(error)
@@ -58,7 +58,7 @@ export const useBillingStore = defineStore({
       paymentMethodId: string,
     ): Promise<any> {
       try {
-        const response = await $http.post<string>('/stripe/setSubscriptionCard', {
+        const response = await $http.post<string>('/v1/stripe/setSubscriptionCard', {
           customerId,
           paymentMethodId
         })
@@ -76,7 +76,7 @@ export const useBillingStore = defineStore({
         const response = await $http.get<{
           subscriptionId: string,
           priceId: string,
-        }>(`/stripe/subscriptionPrice/${customerId}`)
+        }>(`/v1/stripe/subscriptionPrice/${customerId}`)
         return response.data
       } catch (error) {
         console.log(error)

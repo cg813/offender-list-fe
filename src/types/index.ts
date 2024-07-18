@@ -103,6 +103,7 @@ export interface IActivity {
   _id: string;
   userId: string;
   processed: number;
+  fileUrl: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -150,4 +151,10 @@ export enum EStripeCheckoutMode {
   PAYMENT = 'payment',
   SUBSCRIPTION = 'subscription',
   SETUP = 'setup',
+}
+
+export interface IDetectionRequest {
+  data: string,
+  fileFormat: string;
+  sendEmail: boolean;
 }

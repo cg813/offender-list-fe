@@ -19,7 +19,7 @@ export const useActivityStore = defineStore({
       limit: number
     ): Promise<IActivity[]> {
       try {
-        const response = await $http.get<PaginationData>(`/activities/${userId}?page=${page}&limit=${limit}`)
+        const response = await $http.get<PaginationData>(`/v1/activities/${userId}?page=${page}&limit=${limit}`)
         this.total = response.data.total
         return response.data.list
       } catch (error) {
@@ -30,7 +30,7 @@ export const useActivityStore = defineStore({
 
     async createActivity(payload: IActivityCreateDto): Promise<IActivity | null> {
       try {
-        const response = await $http.post('/activities', payload)
+        const response = await $http.post('/v1/activities', payload)
         return response.data
       } catch (error) {
         console.log(error)

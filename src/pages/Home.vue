@@ -48,10 +48,10 @@
               {{ state.fileName }}
             </div>
           </div>
-          <div v-if="state.fileName && state.list.length" class="mt-10 flex flex-col items-center">
+          <div v-if="state.fileName && state.numberOfRows > 0" class="mt-10 flex flex-col items-center">
             <template v-if="!state.isLoading">
               <p class="text-white text-sm text-center mb-2">
-                You are about to process {{ state.list.length }} rows. Return result as:
+                You are about to process {{ state.numberOfRows }} rows. Return result as:
               </p>
               <div class="space-y-4 sm:flex sm:items-center sm:space-x-10 sm:space-y-0 mb-4">
                 <div class="flex items-center">
@@ -110,6 +110,7 @@
                 <button
                   type="button"
                   class="rounded bg-indigo-500 px-2.5 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500"
+                  :disabled="!state.data"
                   @click="startProcessing"
                 >
                   Start Processing
@@ -124,9 +125,12 @@
               </div>
             </template>
             <template v-else>
-              <div class="rounded-full bg-gray-600 w-full h-2 mx-auto">
+              <!-- <div class="rounded-full bg-gray-600 w-full h-2 mx-auto">
                 <div :style="{width: state.progress}" class="bg-red-500 h-2 rounded-full max-w-xl" />
-              </div>
+              </div> -->
+              <div
+                style="border-top-color:transparent"
+                class="w-5 h-5 mt-3 border-4 mx-auto border-blue-400 border-solid rounded-full animate-spin"></div>
             </template>
           </div>
         </div>
@@ -149,13 +153,10 @@
 <script setup lang="ts">
 import { computed, reactive } from 'vue'
 import * as XLSX from 'xlsx'
-import moment from 'moment'
 import { useUserStore } from '@/stores/user'
 import { useOffenderListStore } from '@/stores/offenderList'
 import { useToast } from 'vue-toastification'
 import { DocumentIcon } from '@heroicons/vue/solid'
-import { checkIsAvailableData, jsonToCsv, sleep } from '@/helpers'
-import { IEmailData } from '@/types'
 
 const userStore = useUserStore()
 const offenderListStore = useOffenderListStore()
@@ -163,12 +164,11 @@ const toast = useToast()
 
 const state = reactive({
   fileName: null as null | string,
-  header: [] as string[],
-  list: [] as any[],
   isLoading: false,
   downloadFile: 'xlsx' as 'xlsx' | 'csv',
-  progress: '0%',
   sendEmail: false,
+  data: null as null | string,
+  numberOfRows: 0,
 })
 
 const description = computed(() => {
@@ -180,50 +180,24 @@ const description = computed(() => {
 
 const description2 = computed(() => {
   let estimated = 'less than 1'
-  if (state.list.length > 20000) {
+  if (state.numberOfRows > 20000) {
     estimated = 'greater than 30'
-  } else if (state.list.length > 5000) {
+  } else if (state.numberOfRows > 5000) {
     estimated = '20 - 30'
-  } else if (state.list.length > 2000) {
+  } else if (state.numberOfRows > 2000) {
     estimated = '10 - 20'
-  } else if (state.list.length > 600) {
+  } else if (state.numberOfRows > 600) {
     estimated = '5 - 10'
-  } else if (state.list.length > 300) {
+  } else if (state.numberOfRows > 300) {
     estimated = '1 - 2'
   }
   return `Your estimated processing time is ${estimated} minutes. Should we send you an email when it's finished?`
 })
 
 const getData = (dataString: string) => {
+  state.data = dataString
   const dataStringLines = dataString.split(/\r\n|\n/)
-  const list = []
-  for (let i = 0; i < dataStringLines.length; i++) {
-      const row = dataStringLines[i].split(/,(?![^"]*"(?:(?:[^"]*"){2})*[^"]*$)/)
-      const item = []
-      for (let j = 0; j < row.length; j++) {
-          let d = row[j]
-          if (d.length > 0) {
-              if (d[0] == '"')
-              d = d.substring(1, d.length - 1)
-              if (d[d.length - 1] == '"')
-              d = d.substring(d.length - 2, 0)
-              d = d.replaceAll('""', '"')
-          }
-          item.push(d)
-      }
-
-      // remove the blank rows
-      if (Object.values(item).filter(x => x).length > 0) {
-        if (i === 0) {
-          item.push('Match')
-          item.push('Details')
-          state.header = item
-        } else {
-          list.push(item)
-        }
-      }
-  }
-  state.list = list
+  state.numberOfRows = dataStringLines.length - 1
 }
 
 const onFileChange = async (e: any) => {
@@ -260,8 +234,9 @@ const onFileChange = async (e: any) => {
 
 const cancel = () => {
   state.fileName = null
-  state.header = []
-  state.list = []
+  state.numberOfRows = 0
+  state.sendEmail = false
+  state.data = null
   state.isLoading = false
 }
 
@@ -310,116 +285,23 @@ const fileDrop = (event: DragEvent) => {
   reader.readAsBinaryString(file);
 }
 
-const downloadXLSXFile = () => {
-  const workbook = XLSX.utils.book_new();
-  workbook.Props = {
-    Title: "Offender Detection",
-    Subject: "Offender",
-    Author: "OffenderList",
-    CreatedDate: new Date()
-  };
-  workbook.SheetNames.push("Sheet1");
-  const ws_data = [
-    state.header,
-    ...state.list
-  ]
-  const ws = XLSX.utils.aoa_to_sheet(ws_data);
-  workbook.Sheets["Sheet1"] = ws;
-  const wopts = { bookType:"xlsx", bookSST:false, type:"array" } as any;
-  const wbout = XLSX.write(workbook, wopts);
-  const blob = new Blob([wbout],{type:"application/octet-stream"})
-  const link = document.createElement('a')
-  link.href = window.URL.createObjectURL(blob)
-  const datetime = new Date().toISOString()
-  link.download = `Result-${datetime}.xlsx`
-  link.click()
-}
-
-const downloadCSVFile = () => {
-  const fileParsed = jsonToCsv([
-    state.header,
-    ...state.list
-  ])
-  const fileBlob = new Blob([fileParsed], { type: 'text/csv' })
-  const fileLink = document.createElement('a')
-  fileLink.href = URL.createObjectURL(fileBlob)
-  const datetime = new Date().toISOString()
-  fileLink.download = `Result-${datetime}.csv`
-  fileLink.click()
-}
-
-const startProcessing = async () => {
-  if (!userStore.user) {
+const startProcessing = async() => {
+  if (!state.data) {
     return
   }
-  const _availableRequests = Math.min(userStore.user.availableRequests, state.list.length)
-  if (_availableRequests < 1) {
-    toast.info('No available rows. please update your plan.')
-    cancel()
-    return
+  state.isLoading = true
+  const payload = {
+    data: state.data,
+    fileFormat: state.downloadFile,
+    sendEmail: state.sendEmail,
   }
-
-  const headerLength = state.header.length - 2
-  try {
-    state.isLoading = true
-    const availableList = state.list.slice(0, _availableRequests)
-    const newList: any[] = []
-    let _cnt = 0
-    for (let i = 0; i < availableList.length; i++) {
-      const data = [...availableList[i]]
-      // Must have name
-      if (!checkIsAvailableData(data)) {
-        data[headerLength] = 'Incomplete'
-        data[headerLength+1] = ''
-        _cnt = _cnt + 1
-      } else {
-        let dob = ''
-        if (data[2]) {
-          dob = moment(data[2]).format('YYYY-MM-DD')
-        }
-        const offenders = await offenderListStore.getOffenders(data[0], data[1], dob, data[3] || '', data[4] || '')
-        if (offenders.length) {
-          data[headerLength] = `${offenders.length} Potential Matches`
-          for (let j = 0; j < offenders.length; j++) {
-            const image = offenders[j].image
-            data[headerLength+1+j] = `${image}, ${JSON.stringify(offenders[j])}`
-          }
-        } else {
-          data[headerLength] = 'No Match'
-          data[headerLength+1] = ''
-        }
-        await sleep(50);
-      }
-      newList.push(data)
-      state.progress = `${Math.round((i + 1) * 100 / availableList.length)}%`;
-    }
-    state.list = newList
-    state.isLoading = false
-
-    if (state.downloadFile === 'xlsx') {
-      downloadXLSXFile()
-    } else {
-      downloadCSVFile()
-    }
-    cancel()
-
-    const payload1 = {
-      processedRows: _availableRequests
-    }
-    await userStore.updateUser(userStore.user._id, payload1)
-    if (state.sendEmail) {
-      const payload2: IEmailData = {
-        to: userStore.user.email,
-        subject: 'Offender List detection',
-        text: `Hi,\r\n\n Your file is ready and downlaoded automatically.`
-      }
-      await userStore.sendEmail(payload2)
-    }
-    toast.success('Detection finished successfully!')
-  } catch (error) {
-    console.log(error)
-    toast.error('Something went wrong. please try again later')
+  const res = await offenderListStore.detection(payload)
+  if (res.success) {
+    cancel();
+  } else {
+    toast.error(res.message || 'Something went wrong.')
   }
+  state.isLoading = false
 }
 </script>
 
