@@ -297,6 +297,7 @@ const startProcessing = async() => {
   }
   const res = await offenderListStore.detection(payload)
   if (res.success) {
+    await userStore.fetchUser(userStore.user!._id)
     cancel();
   } else {
     toast.error(res.message || 'Something went wrong.')

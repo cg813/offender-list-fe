@@ -34,7 +34,7 @@ export const useOffenderListStore = defineStore({
         console.log(error)
         return {
           success: false,
-          message: error.response.data.message
+          message: error.message
         }
       }
     },
