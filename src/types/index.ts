@@ -104,6 +104,7 @@ export interface IActivity {
   userId: string;
   processed: number;
   fileUrl: string;
+  status: string;
   createdAt: string;
   updatedAt: string;
 }

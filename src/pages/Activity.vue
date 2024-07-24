@@ -17,6 +17,7 @@
                     <tr>
                       <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-0">Date</th>
                       <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Rows processed</th>
+                      <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Status</th>
                       <th scope="col" class="px-3 py-3.5 text-right text-sm font-semibold text-white">Download</th>
                     </tr>
                   </thead>
@@ -24,6 +25,14 @@
                     <tr v-for="activity in activities" :key="activity._id">
                       <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-0">{{ moment(activity.createdAt).format('MM/DD/YYYY, hh:mm:ss') }}</td>
                       <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300 capitalize">{{ activity.processed }}</td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300 capitalize">
+                        <span v-if="activity.status === 'Succeed' || activity.fileUrl" class="text-green-400">Succeed</span>
+                        <div
+                          v-else-if="activity.status === 'Pending'"
+                          style="border-top-color:transparent"
+                          class="w-5 h-5 ml-3 border-4 border-blue-700 border-solid rounded-full animate-spin"></div>
+                        <span v-else class="text-red-700">Failed</span>
+                      </td>
                       <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300 text-right capitalize">
                         <a v-if="activity.fileUrl" :href="activity.fileUrl" download>
                           <DownloadIcon class="w-6 ml-auto cursor-pointer text-purple-700" />

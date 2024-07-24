@@ -166,7 +166,7 @@ const state = reactive({
   fileName: null as null | string,
   isLoading: false,
   downloadFile: 'xlsx' as 'xlsx' | 'csv',
-  sendEmail: false,
+  sendEmail: true,
   data: null as null | string,
   numberOfRows: 0,
 })
@@ -297,8 +297,8 @@ const startProcessing = async() => {
   }
   const res = await offenderListStore.detection(payload)
   if (res.success) {
-    await userStore.updateUser(userStore.user!._id, {})
-    toast.success('Your list has been processed and can now be downloaded at Activities.');
+    // await userStore.updateUser(userStore.user!._id, {});
+    toast.success('Your list is in progress and can be downloaded at Activities after finished.');
     cancel();
   } else {
     toast.error(res.message || 'Something went wrong.')
