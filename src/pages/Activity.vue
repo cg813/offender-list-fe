@@ -26,7 +26,8 @@
                       <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-0">{{ moment(activity.createdAt).format('MM/DD/YYYY, hh:mm:ss') }}</td>
                       <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300 capitalize">{{ activity.processed }}</td>
                       <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300 capitalize">
-                        <span v-if="activity.status === 'Succeed' || activity.fileUrl" class="text-green-400">Succeed</span>
+                        <span v-if="activity.status === 'Downloaded'" class="text-gray-400">Downloaded</span>
+                        <span v-else-if="activity.status === 'Succeed' || activity.fileUrl" class="text-green-400">Succeed</span>
                         <div
                           v-else-if="activity.status === 'Pending'"
                           style="border-top-color:transparent"
@@ -34,7 +35,12 @@
                         <span v-else class="text-red-700">Failed</span>
                       </td>
                       <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300 text-right capitalize">
-                        <a v-if="activity.fileUrl" :href="activity.fileUrl" download>
+                        <a
+                          v-if="activity.fileUrl"
+                          :href="activity.fileUrl"
+                          @click="downloaded(activity._id)"
+                          download
+                        >
                           <DownloadIcon class="w-6 ml-auto cursor-pointer text-purple-700" />
                         </a>
                         <DownloadIcon v-else class="w-6 ml-auto" />
@@ -93,6 +99,20 @@ const fetchActivities = async (pageLength: number): Promise<void> => {
 const changePage = async (p: number, pageLength: number) => {
   page.value = p
   fetchActivities(pageLength)
+}
+
+const downloaded = async (id: string) => {
+  await activityStore.download(id)
+  activities.value = activities.value.map(activity => {
+    if (activity._id === id) {
+      return {
+        ...activity,
+        status: "Downloaded"
+      }
+    } else {
+      return activity
+    }
+  })
 }
 
 </script>

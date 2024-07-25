@@ -36,6 +36,18 @@ export const useActivityStore = defineStore({
         console.log(error)
         return null
       }
-    }
+    },
+
+    async download(id: string): Promise<IActivity | null> {
+      try {
+        const response = await $http.patch(`/v1/activities/${id}`, {
+          status: "Downloaded",
+        })
+        return response.data
+      } catch (error) {
+        console.log(error)
+        return null
+      }
+    },
   }
 })
