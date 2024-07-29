@@ -157,6 +157,7 @@ import { useUserStore } from '@/stores/user'
 import { useOffenderListStore } from '@/stores/offenderList'
 import { useToast } from 'vue-toastification'
 import { DocumentIcon } from '@heroicons/vue/solid'
+import { uploadFile } from '@/api/storage.service'
 
 const userStore = useUserStore()
 const offenderListStore = useOffenderListStore()
@@ -169,6 +170,7 @@ const state = reactive({
   sendEmail: true,
   data: null as null | string,
   numberOfRows: 0,
+  uploadedFileName: '',
 })
 
 const description = computed(() => {
@@ -215,21 +217,31 @@ const onFileChange = async (e: any) => {
     return
   }
 
-  const reader = new FileReader()
-  reader.onload = (evt: any) => {
-    if (extension === 'xlsx') {
-      const bstr = evt.target.result
-      const wb = XLSX.read(bstr, {type: 'binary'})
-      const wsname = wb.SheetNames[0]
-      const ws = wb.Sheets[wsname]
-      const dt = XLSX.utils.sheet_to_csv(ws)
-      getData(dt);
-    } else {
-      const dt = evt.target.result
-      getData(dt);
-    }
-  };
-  reader.readAsBinaryString(file);
+  try {
+    const time = new Date().getTime()
+    const uploadedFileName = `${time}-${file.name}`
+    await uploadFile(file, uploadedFileName)
+    state.uploadedFileName = uploadedFileName
+
+    const reader = new FileReader()
+    reader.onload = (evt: any) => {
+      if (extension === 'xlsx') {
+        const bstr = evt.target.result
+        const wb = XLSX.read(bstr, {type: 'binary'})
+        const wsname = wb.SheetNames[0]
+        const ws = wb.Sheets[wsname]
+        const dt = XLSX.utils.sheet_to_csv(ws)
+        getData(dt);
+      } else {
+        const dt = evt.target.result
+        getData(dt);
+      }
+    };
+    reader.readAsBinaryString(file);
+  } catch(err) {
+    console.log(err)
+    cancel();
+  }
 }
 
 const cancel = () => {
@@ -248,7 +260,7 @@ const fielDragLeave = (event: DragEvent) => {
   event.preventDefault()
 }
 
-const fileDrop = (event: DragEvent) => {
+const fileDrop = async (event: DragEvent) => {
   event.preventDefault()
   if (!event || !event.dataTransfer) {
     return
@@ -257,7 +269,7 @@ const fileDrop = (event: DragEvent) => {
   if (!files.length) {
     return
   }
-  const file = files[0]
+  const file = files[0] as any
 
   // Validation
   state.fileName = file.name
@@ -268,21 +280,31 @@ const fileDrop = (event: DragEvent) => {
     return
   }
 
-  const reader = new FileReader()
-  reader.onload = (evt: any) => {
-    if (extension === 'xlsx') {
-      const bstr = evt.target.result
-      const wb = XLSX.read(bstr, {type: 'binary'})
-      const wsname = wb.SheetNames[0]
-      const ws = wb.Sheets[wsname]
-      const dt = XLSX.utils.sheet_to_csv(ws)
-      getData(dt);
-    } else {
-      const dt = evt.target.result
-      getData(dt);
-    }
-  };
-  reader.readAsBinaryString(file);
+  try {
+    const time = new Date().getTime()
+    const uploadedFileName = `${time}-${file.name}`
+    await uploadFile(file, uploadedFileName)
+    state.uploadedFileName = uploadedFileName
+
+    const reader = new FileReader()
+    reader.onload = (evt: any) => {
+      if (extension === 'xlsx') {
+        const bstr = evt.target.result
+        const wb = XLSX.read(bstr, {type: 'binary'})
+        const wsname = wb.SheetNames[0]
+        const ws = wb.Sheets[wsname]
+        const dt = XLSX.utils.sheet_to_csv(ws)
+        getData(dt);
+      } else {
+        const dt = evt.target.result
+        getData(dt);
+      }
+    };
+    reader.readAsBinaryString(file);
+  } catch(err) {
+    console.log(err)
+    cancel();
+  }
 }
 
 const startProcessing = async() => {
@@ -291,7 +313,7 @@ const startProcessing = async() => {
   }
   state.isLoading = true
   const payload = {
-    data: state.data,
+    data: state.uploadedFileName,
     fileFormat: state.downloadFile,
     sendEmail: state.sendEmail,
   }

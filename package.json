@@ -19,6 +19,7 @@
     "@vuelidate/validators": "^2.0.3",
     "@vuepic/vue-datepicker": "3.4.8",
     "@vueuse/core": "^5.2.0",
+    "aws-sdk": "^2.1664.0",
     "axios": "^1.2.1",
     "cbor-web": "^7.0.6",
     "core-js": "^3.6.5",
